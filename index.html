@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <!-- PC에서 열어도 모바일처럼 보이도록 뷰포트 고정 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Zoom App - My Pet Mission</title>
   
@@ -27,6 +28,20 @@
       /* 모바일에서 터치 시 파란 박스 뜨는 거 방지 */
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+    }
+
+    /* PC에서 모바일 화면처럼 보이도록 앱 컨테이너 중앙 정렬 */
+    #root {
+        display: flex;
+        justify-content: center;
+        background-color: #F0F2F6; /* 배경색 통일 */
+    }
+    .app-container {
+        /* [수정됨] PC에서 앱 화면 너비를 420px로 고정하여 모바일 에뮬레이션 */
+        max-width: 420px; 
+        width: 100%;
+        min-height: 100vh;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
     }
     
     .shadow-inner-custom {
@@ -60,7 +75,7 @@
         animation: squish 0.3s ease-in-out;
     }
 
-    /* [수정됨] 1. 동전 날아가는 애니메이션 (P 아이콘으로 이동) */
+    /* [수정됨] 동전 날아가는 애니메이션 (앱 컨테이너 기준 absolute) */
     @keyframes coin-fly {
         0% { 
             opacity: 1; 
@@ -77,19 +92,19 @@
         100% { 
             opacity: 0; 
             transform: translate(0, 0) scale(0.4); 
-            /* 목표: 헤더의 P 아이콘 중심 (대략 top: 32px, left: 32px) */
+            /* 목표: 헤더의 P 아이콘 중심 (앱 컨테이너 좌상단 기준) */
             top: 32px; 
             left: 32px; 
         }
     }
     .animate-coin-fly {
-        position: fixed;
+        position: absolute; /* fixed에서 absolute로 변경 */
         z-index: 50;
         animation: coin-fly 0.8s ease-in-out forwards;
         pointer-events: none;
     }
 
-    /* [추가됨] 3. 하트 팝 애니메이션 */
+    /* 하트 팝 애니메이션 */
     @keyframes heart-pop {
         0% { opacity: 1; transform: translate(-50%, 0) scale(0); }
         50% { opacity: 1; transform: translate(-50%, -30px) scale(1); }
@@ -151,10 +166,10 @@
       const [isLoading, setIsLoading] = React.useState(false);
       const [error, setError] = React.useState('');
       
-      const promptStyle = '3D cute character, rounded, smooth, plush texture, soft studio lighting, solid pure white background, isolated character, mobile game asset, minimal';
+      // [수정됨] 3. 배경 없는 단일 캐릭터 강조 프롬프트 강화
+      const promptStyle = 'A full-body, centered, 3D cute character, rounded, smooth, plush texture, soft studio lighting. The character must be fully isolated on a clean, solid white background and fill most of the frame. Single subject only, no shadows.';
       
       const fileInputRef = React.useRef(null);
-      // [보안 임시 조치] Vercel 배포 시, 이 apiKey 변수에 실제 키를 넣어야 클라이언트 측 JS에서 작동합니다.
       const apiKey = "AIzaSyBevGnutE8zEpryOhayzsxrOT4rBrYNAWI"; 
 
       const resizeImage = (file, maxWidth = 1024, maxHeight = 1024) => {
@@ -220,7 +235,7 @@
               body: JSON.stringify({
                 contents: [{
                   parts: [
-                    { text: `Transform the main subject of the following image into a ${promptStyle}. Focus on a single, cute character with clear outlines. Output should be an image of this character only, completely isolated on a solid pure white background. Do not include any shadows or other elements.` },
+                    { text: `Transform the main subject of the following image into a ${promptStyle}` },
                     { inlineData: { mimeType: 'image/jpeg', data: base64Data } }
                   ]
                 }],
@@ -257,19 +272,12 @@
       const [isAnimating, setIsAnimating] = React.useState(false);
       const [showCoin, setShowCoin] = React.useState(false);
       const [points, setPoints] = React.useState(10419);
-      const [hearts, setHearts] = React.useState([]); // [추가됨] 하트 파티클 상태
+      const [hearts, setHearts] = React.useState([]);
 
       const randomMessages = [
-        "고마워! 🥰",
-        "기분 최고야! ✨",
-        "헤헤 조아 🐾",
-        "더 쓰다듬어줘!",
-        "말랑말랑해?",
-        "행복해 💕",
-        "너랑 노는게 좋아",
-        "간지러워 ㅋㅋ",
-        "조금 더 만져줘",
-        "사랑해! 😍"
+        "고마워! 🥰", "기분 최고야! ✨", "헤헤 조아 🐾", "더 쓰다듬어줘!",
+        "말랑말랑해?", "행복해 💕", "너랑 노는게 좋아", "간지러워 ㅋㅋ",
+        "조금 더 만져줘", "사랑해! 😍"
       ];
 
       const handlePetTouch = () => {
@@ -278,18 +286,17 @@
         setIsAnimating(true);
         setTimeout(() => setIsAnimating(false), 300);
 
-        // [추가됨] 하트 생성 로직
+        // 하트 생성 로직
         const newHeart = { 
             id: Date.now(), 
-            offsetX: (Math.random() - 0.5) * 40, // -20px to +20px
-            offsetY: (Math.random() - 0.5) * 40,  // -20px to +20px
+            offsetX: (Math.random() - 0.5) * 40,
+            offsetY: (Math.random() - 0.5) * 40,
             delay: Math.random() * 0.1 
         };
         setHearts(prev => [...prev, newHeart]);
         setTimeout(() => {
             setHearts(prev => prev.filter(h => h.id !== newHeart.id));
         }, 1000);
-        // ---
 
         const newTouchCount = touchCount + 1;
         setTouchCount(newTouchCount);
@@ -317,8 +324,7 @@
       };
 
       return (
-        <div className="min-h-screen flex flex-col items-center select-none">
-          <div className="w-full max-w-md bg-white shadow-lg min-h-screen flex flex-col relative">
+        <div className="app-container w-full max-w-[420px] bg-white shadow-lg min-h-screen flex flex-col relative select-none">
             
             {showCoin && (
                 <div className="animate-coin-fly">
@@ -377,7 +383,7 @@
                 onClick={generatedImage ? handlePetTouch : handlePetAreaClick}
                 style={{ WebkitTapHighlightColor: 'transparent' }} 
               >
-                {/* [추가됨] 하트 파티클 렌더링 */}
+                {/* 하트 파티클 렌더링 */}
                 {hearts.map(heart => (
                     <div 
                         key={heart.id} 
@@ -403,8 +409,8 @@
                     <img 
                       src={generatedImage} 
                       alt="My Pet" 
-                      // [수정됨] 2. 깜빡임 방지 (isAnimating 일 때만 squish 클래스 사용)
-                      className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''} ${isAnimating ? 'animate-squish' : ''}`}
+                      /* [수정됨] 2. 펫 크기 최대화 (object-cover + scale-[1.1]로 원 가득 채우기) */
+                      className={`w-full h-full object-cover scale-[1.1] ${generatedImage ? 'animate-fade-in' : ''} ${isAnimating ? 'animate-squish' : ''}`}
                     />
                   </>
                 ) : selectedImage ? (
@@ -433,7 +439,8 @@
                 {selectedImage && !generatedImage && !isLoading && (
                   <button 
                     onClick={(e) => { e.stopPropagation(); generateAIImage(); }}
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg transition-all active:scale-95 z-10"
+                    /* [수정됨] 4. 줄 바꿈 방지 */
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg transition-all active:scale-95 z-10 whitespace-nowrap"
                   >
                     <Icon name="sparkles" className="w-4 h-4" /> 펫으로 변환하기
                   </button>
