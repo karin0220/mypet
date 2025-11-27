@@ -12,14 +12,15 @@
   <!-- React & Tailwind -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- NOTE: Babel for JSX compilation -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Lucide Icons (Latest) -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- TailwindCSS와 기본 Body 스타일만 유지 -->
   <style>
-    /* 기본 폰트 설정 */
     body {
       font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
       margin: 0;
@@ -28,92 +29,6 @@
       /* 모바일에서 터치 시 파란 박스 뜨는 거 방지 */
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-    }
-
-    /* PC에서 모바일 화면처럼 보이도록 앱 컨테이너 중앙 정렬 */
-    #root {
-        display: flex;
-        justify-content: center;
-        background-color: #F0F2F6; /* 배경색 통일 */
-    }
-    .app-container {
-        /* [수정됨] PC에서 앱 화면 너비를 420px로 고정하여 모바일 에뮬레이션 */
-        max-width: 420px; 
-        width: 100%;
-        min-height: 100vh;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .shadow-inner-custom {
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 -2px 4px rgba(255, 255, 255, 0.5), 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in {
-      animation: fade-in 0.3s ease-out forwards;
-    }
-    
-    @keyframes scale-in {
-        from { opacity: 0; transform: translate(-50%, 10px) scale(0.5); }
-        to { opacity: 1; transform: translate(-50%, 0) scale(1); }
-    }
-    .animate-scale-in {
-        animation: scale-in 0.3s ease-out forwards;
-    }
-
-    /* 젤리처럼 말랑한 쓰다듬기 효과 */
-    @keyframes squish {
-        0% { transform: scale(1); }
-        40% { transform: scale(1.05, 0.92) translateY(2px); } /* 납작해짐 */
-        70% { transform: scale(0.95, 1.05) translateY(-2px); } /* 길쭉해짐 */
-        100% { transform: scale(1); }
-    }
-    .animate-squish {
-        animation: squish 0.3s ease-in-out;
-    }
-
-    /* [수정됨] 동전 날아가는 애니메이션 (앱 컨테이너 기준 absolute) */
-    @keyframes coin-fly {
-        0% { 
-            opacity: 1; 
-            transform: translate(-50%, -50%) scale(0.8); 
-            top: 45%; 
-            left: 50%;
-        }
-        20% {
-            transform: translate(-50%, -50%) scale(1.2); 
-        }
-        90% {
-            opacity: 1; 
-        }
-        100% { 
-            opacity: 0; 
-            transform: translate(0, 0) scale(0.4); 
-            /* 목표: 헤더의 P 아이콘 중심 (앱 컨테이너 좌상단 기준) */
-            top: 32px; 
-            left: 32px; 
-        }
-    }
-    .animate-coin-fly {
-        position: absolute; /* fixed에서 absolute로 변경 */
-        z-index: 50;
-        animation: coin-fly 0.8s ease-in-out forwards;
-        pointer-events: none;
-    }
-
-    /* 하트 팝 애니메이션 */
-    @keyframes heart-pop {
-        0% { opacity: 1; transform: translate(-50%, 0) scale(0); }
-        50% { opacity: 1; transform: translate(-50%, -30px) scale(1); }
-        100% { opacity: 0; transform: translate(-50%, -80px) scale(0.5); }
-    }
-    .animate-heart-pop {
-        animation: heart-pop 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-        position: absolute;
-        pointer-events: none;
     }
   </style>
 </head>
@@ -161,16 +76,95 @@
     };
 
     const App = () => {
+        // [1. CSS Styles in JS]
+        React.useEffect(() => {
+            const styleTag = document.createElement('style');
+            styleTag.innerHTML = `
+                /* PC에서 모바일 화면처럼 보이도록 앱 컨테이너 중앙 정렬 */
+                #root {
+                    display: flex;
+                    justify-content: center;
+                    background-color: #F0F2F6;
+                }
+                .shadow-inner-custom {
+                    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06), inset 0 -2px 4px rgba(255, 255, 255, 0.5), 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+                @keyframes fade-in {
+                    from { opacity: 0; transform: translateY(5px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 0.3s ease-out forwards;
+                }
+                @keyframes scale-in {
+                    from { opacity: 0; transform: translate(-50%, 10px) scale(0.5); }
+                    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+                }
+                .animate-scale-in {
+                    animation: scale-in 0.3s ease-out forwards;
+                }
+                @keyframes squish {
+                    0% { transform: scale(1); }
+                    40% { transform: scale(1.05, 0.92) translateY(2px); }
+                    70% { transform: scale(0.95, 1.05) translateY(-2px); }
+                    100% { transform: scale(1); }
+                }
+                .animate-squish {
+                    animation: squish 0.3s ease-in-out;
+                }
+                @keyframes coin-fly {
+                    0% { 
+                        opacity: 1; 
+                        transform: translate(-50%, -50%) scale(0.8); 
+                        top: 45%; 
+                        left: 50%;
+                    }
+                    20% {
+                        transform: translate(-50%, -50%) scale(1.2); 
+                    }
+                    90% {
+                        opacity: 1; 
+                    }
+                    100% { 
+                        opacity: 0; 
+                        transform: translate(0, 0) scale(0.4); 
+                        top: 32px; 
+                        left: 32px; 
+                    }
+                }
+                .animate-coin-fly {
+                    position: absolute;
+                    z-index: 50;
+                    animation: coin-fly 0.8s ease-in-out forwards;
+                    pointer-events: none;
+                }
+                @keyframes heart-pop {
+                    0% { opacity: 1; transform: translate(-50%, 0) scale(0); }
+                    50% { opacity: 1; transform: translate(-50%, -30px) scale(1); }
+                    100% { opacity: 0; transform: translate(-50%, -80px) scale(0.5); }
+                }
+                .animate-heart-pop {
+                    animation: heart-pop 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+                    position: absolute;
+                    pointer-events: none;
+                }
+            `;
+            document.head.appendChild(styleTag);
+            return () => { document.head.removeChild(styleTag); };
+        }, []);
+
+
       const [selectedImage, setSelectedImage] = React.useState(null);
       const [generatedImage, setGeneratedImage] = React.useState(null);
       const [isLoading, setIsLoading] = React.useState(false);
       const [error, setError] = React.useState('');
+      const [isPetConfirmed, setIsPetConfirmed] = React.useState(false);
       
-      // [수정됨] 3. 배경 없는 단일 캐릭터 강조 프롬프트 강화
       const promptStyle = 'A full-body, centered, 3D cute character, rounded, smooth, plush texture, soft studio lighting. The character must be fully isolated on a clean, solid white background and fill most of the frame. Single subject only, no shadows.';
       
       const fileInputRef = React.useRef(null);
-      const apiKey = "AIzaSyBevGnutE8zEpryOhayzsxrOT4rBrYNAWI"; 
+      // API Key - Vercel 배포 시 여기에 키를 넣어주세요.
+      const apiKey = ""; 
 
       const resizeImage = (file, maxWidth = 1024, maxHeight = 1024) => {
         return new Promise((resolve) => {
@@ -208,6 +202,7 @@
           return;
         }
         setGeneratedImage(null);
+        setIsPetConfirmed(false); 
         setError('');
         
         try {
@@ -248,6 +243,7 @@
           const generatedPart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
           if (generatedPart) {
             setGeneratedImage(`data:${generatedPart.inlineData.mimeType};base64,${generatedPart.inlineData.data}`);
+            setIsPetConfirmed(false); 
           } else {
             throw new Error('이미지 생성 실패');
           }
@@ -264,6 +260,17 @@
           fileInputRef.current?.click();
         }
       };
+
+      const handleConfirmPet = () => {
+        setIsPetConfirmed(true);
+        setPetMessage('펫 확정! 이제 마음껏 쓰다듬어줘! ❤️');
+      };
+
+      const handleRerollPet = () => {
+        if (isLoading) return;
+        setPetMessage('광고 시청 중... 잠시만 기다려!');
+        generateAIImage(); 
+      };
       
       const [touchCount, setTouchCount] = React.useState(0);
       const [showReward, setShowReward] = React.useState(false);
@@ -274,14 +281,16 @@
       const [points, setPoints] = React.useState(10419);
       const [hearts, setHearts] = React.useState([]);
 
+      // [수정 2] 더 다양하고 사랑스러운 대사 추가
       const randomMessages = [
-        "고마워! 🥰", "기분 최고야! ✨", "헤헤 조아 🐾", "더 쓰다듬어줘!",
-        "말랑말랑해?", "행복해 💕", "너랑 노는게 좋아", "간지러워 ㅋㅋ",
-        "조금 더 만져줘", "사랑해! 😍"
+        "날 만들어줘서 고마워! 🥺", "항상 함께할게 약속! 🤝", "오늘도 같이 힘내자! 🔥",
+        "너무 오래두면 외로울지도 몰라 😭", "고마워! 🥰", "기분 최고야! ✨", 
+        "헤헤 조아 🐾", "더 쓰다듬어줘!", "말랑말랑해?", "행복해 💕", 
+        "너랑 노는게 좋아", "간지러워 ㅋㅋ", "조금 더 만져줘", "사랑해! 😍"
       ];
 
       const handlePetTouch = () => {
-        if (isLoading || !generatedImage || isAnimating || showReward) return;
+        if (isLoading || !generatedImage || isAnimating || showReward || !isPetConfirmed) return; 
 
         setIsAnimating(true);
         setTimeout(() => setIsAnimating(false), 300);
@@ -334,7 +343,7 @@
                 </div>
             )}
 
-            {/* Top Bar */}
+            {/* Top Bar (White Header) */}
             <div className="p-4 flex items-center justify-between border-b border-gray-100 sticky top-0 bg-white z-10">
               <div className="flex items-center relative">
                 <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFE54C] mr-2">
@@ -348,185 +357,208 @@
               </div>
             </div>
 
-            {/* Main Content */}
-            <div className="p-4 text-center mt-4">
-              <h2 className="text-xl font-bold text-[#333] mb-2">
-                톡톡! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
-              </h2>
-              <p className="text-sm text-gray-600 mb-6">
-                사진 등록하고 나만의 펫을 만들어보세요!
-              </p>
+            {/* Main Content (Gradient Background) */}
+            <div className="flex-1 bg-gradient-to-b from-[#E3F2FD] to-white"> 
+            
+              {/* Pet Section Text & Bubble */}
+              <div className="p-4 text-center mt-4">
+                <h2 className="text-xl font-bold text-[#333] mb-2">
+                  톡톡! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
+                </h2>
+                <p className="text-sm text-gray-600 mb-6">
+                  동물 또는 인물 사진을 등록하고 나만의 펫을 만들어보세요!
+                </p>
 
-              {/* Message Bubble */}
-              {generatedImage && (
-                <div className={`
-                  absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-20 transition-all duration-300
-                  ${showReward ? 'animate-bounce' : 'animate-scale-in'}
-                `}>
-                  <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{petMessage}</p>
-                  {showReward && (
-                    <button
-                      onClick={claimReward}
-                      className="mt-2 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 text-xs font-bold py-1 rounded-lg transition-all active:scale-95"
+                {/* Message Bubble (확정된 상태에서만 나옴) */}
+                {generatedImage && isPetConfirmed && (
+                  <div className={`
+                    absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-20 transition-all duration-300
+                    ${showReward ? 'animate-bounce' : 'animate-scale-in'}
+                  `}>
+                    <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{petMessage}</p>
+                    {showReward && (
+                      <button
+                        onClick={claimReward}
+                        // [수정 1] 패딩을 py-2로 늘려 박스와 텍스트 사이 여백 확보
+                        className="mt-2 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 whitespace-nowrap"
+                      >
+                        광고 보고 보상 받기 (+100P)
+                      </button>
+                    )}
+                    <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
+                  </div>
+                )}
+
+                {/* Pet Interaction Area (Always White Background inside the circle) */}
+                <div 
+                  className={`relative w-full aspect-square max-w-[300px] mx-auto rounded-full flex items-center justify-center cursor-pointer overflow-hidden p-4 shadow-inner-custom border-4 border-white/50 transition-all duration-300 
+                  bg-white`} 
+                  onClick={generatedImage && isPetConfirmed ? handlePetTouch : handlePetAreaClick}
+                  style={{ WebkitTapHighlightColor: 'transparent' }} 
+                >
+                  {/* 하트 파티클 렌더링 (확정된 상태에서만) */}
+                  {isPetConfirmed && hearts.map(heart => (
+                      <div 
+                          key={heart.id} 
+                          className="animate-heart-pop text-red-500 text-2xl"
+                          style={{ 
+                              top: '50%',
+                              left: '50%',
+                              transform: `translate(calc(-50% + ${heart.offsetX}px), calc(-50% + ${heart.offsetY}px))`,
+                              animationDelay: `${heart.delay}s` 
+                          }}
+                      >
+                          ❤️
+                      </div>
+                  ))}
+                  
+                  {isLoading ? (
+                    <div className="flex flex-col items-center justify-center text-blue-600">
+                      <Icon name="loader-2" className="w-10 h-10 animate-spin" />
+                      <span className="mt-2 text-sm">펫 생성 중...</span>
+                    </div>
+                  ) : generatedImage ? (
+                    <>
+                      <img 
+                        src={generatedImage} 
+                        alt="My Pet" 
+                        // object-contain으로 수정하여 펫이 잘리지 않고 원형 안에 들어오도록 함
+                        className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''} ${isAnimating ? 'animate-squish' : ''}`}
+                      />
+                    </>
+                  ) : selectedImage ? (
+                      <img 
+                        src={selectedImage} 
+                        alt="Selected Preview" 
+                        className="w-full h-full object-contain animate-fade-in opacity-50"
+                      />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-blue-500">
+                      <Icon name="upload" className="w-10 h-10 mb-2" />
+                      <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
+                      <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
+                    </div>
+                  )}
+                  
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={(e) => processFile(e.target.files[0])}
+                    accept="image/*"
+                    className="hidden"
+                  />
+
+                  {/* Overlays: 1. 파일 선택 직후 (변환하기) - 버튼은 원형 안에 표시됨 */}
+                  {selectedImage && !generatedImage && !isLoading && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); generateAIImage(); }}
+                      className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg transition-all active:scale-95 z-10 whitespace-nowrap"
                     >
-                      광고 보고 보상 받기 (+100P)
+                      <Icon name="sparkles" className="w-4 h-4" /> 펫으로 변환하기
                     </button>
                   )}
-                   <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
-                </div>
-              )}
 
-              {/* Pet Interaction Area */}
-              <div 
-                className={`relative w-full aspect-square max-w-[300px] mx-auto rounded-full flex items-center justify-center cursor-pointer overflow-hidden p-4 shadow-inner-custom border-4 border-white/50 transition-all duration-300 
-                ${generatedImage ? 'bg-white' : 'bg-[#E0E7FF]'}`} 
-                onClick={generatedImage ? handlePetTouch : handlePetAreaClick}
-                style={{ WebkitTapHighlightColor: 'transparent' }} 
-              >
-                {/* 하트 파티클 렌더링 */}
-                {hearts.map(heart => (
-                    <div 
-                        key={heart.id} 
-                        className="animate-heart-pop text-red-500 text-2xl"
-                        style={{ 
-                            top: '50%',
-                            left: '50%',
-                            transform: `translate(calc(-50% + ${heart.offsetX}px), calc(-50% + ${heart.offsetY}px))`,
-                            animationDelay: `${heart.delay}s` 
-                        }}
+                  {/* Overlays: 3. 확정 후 (리셋 버튼) - 원형 안에 top-right에 위치 */}
+                  {generatedImage && isPetConfirmed && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); }} // 리셋 시 확정 상태도 해제
+                      className="absolute top-4 right-4 p-2 bg-black/40 rounded-full text-white hover:bg-red-500/70 transition-colors z-10"
                     >
-                        ❤️
+                      <Icon name="x" className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                
+                {/* Overlays: 2. 이미지 생성 후 (확정/다시 만들기) - Pet Interaction Area 밖으로 분리 */}
+                {generatedImage && !isPetConfirmed && !isLoading && (
+                    <div className="mt-6 w-full max-w-[300px] mx-auto flex flex-col gap-2 z-20"> 
+                        <button 
+                          onClick={handleConfirmPet}
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-lg whitespace-nowrap"
+                        >
+                            <Icon name="check-circle" className="w-4 h-4 mr-2 inline-block"/> 이대로 확정하기
+                        </button>
+                        <button 
+                          onClick={handleRerollPet}
+                          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap"
+                        >
+                            <Icon name="monitor-play" className="w-4 h-4 mr-2 inline-block"/> 광고 보고 다시 만들기
+                        </button>
                     </div>
-                ))}
-                
-                {isLoading ? (
-                  <div className="flex flex-col items-center justify-center text-blue-600">
-                    <Icon name="loader-2" className="w-10 h-10 animate-spin" />
-                    <span className="mt-2 text-sm">펫 생성 중...</span>
-                  </div>
-                ) : generatedImage ? (
-                  <>
-                    <img 
-                      src={generatedImage} 
-                      alt="My Pet" 
-                      /* [수정됨] 2. 펫 크기 최대화 (object-cover + scale-[1.1]로 원 가득 채우기) */
-                      className={`w-full h-full object-cover scale-[1.1] ${generatedImage ? 'animate-fade-in' : ''} ${isAnimating ? 'animate-squish' : ''}`}
-                    />
-                  </>
-                ) : selectedImage ? (
-                    <img 
-                      src={selectedImage} 
-                      alt="Selected Preview" 
-                      className="w-full h-full object-contain animate-fade-in opacity-50"
-                    />
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-blue-500">
-                    <Icon name="upload" className="w-10 h-10 mb-2" />
-                    <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
-                    <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
-                  </div>
                 )}
                 
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  onChange={(e) => processFile(e.target.files[0])}
-                  accept="image/*"
-                  className="hidden"
-                />
-
-                {/* Overlays */}
-                {selectedImage && !generatedImage && !isLoading && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); generateAIImage(); }}
-                    /* [수정됨] 4. 줄 바꿈 방지 */
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg transition-all active:scale-95 z-10 whitespace-nowrap"
-                  >
-                    <Icon name="sparkles" className="w-4 h-4" /> 펫으로 변환하기
-                  </button>
-                )}
-                {generatedImage && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); }}
-                    className="absolute top-4 right-4 p-2 bg-black/40 rounded-full text-white hover:bg-red-500/70 transition-colors z-10"
-                  >
-                    <Icon name="x" className="w-4 h-4" />
-                  </button>
+                {error && (
+                  <div className="p-3 bg-red-100 border border-red-300 rounded-lg text-red-700 text-sm mt-6 mx-auto animate-pulse flex flex-col gap-1 max-w-[300px]">
+                    <span className="font-bold">⚠️ 오류 발생</span>
+                    <span>{error}</span>
+                  </div>
                 )}
               </div>
-              
-              {error && (
-                <div className="p-3 bg-red-100 border border-red-300 rounded-lg text-red-700 text-sm mt-6 mx-auto animate-pulse flex flex-col gap-1 max-w-[300px]">
-                  <span className="font-bold">⚠️ 오류 발생</span>
-                  <span>{error}</span>
+
+              {/* Mission Lists */}
+              <div className="mt-8 px-4 pb-20">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-lg text-[#333]">기간 한정 미션</h3>
+                  <button className="text-sm text-gray-500 flex items-center">더보기 &gt;</button>
                 </div>
-              )}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex items-center">
+                  <div className="w-12 h-12 rounded-lg mr-3 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500">
+                      <Icon name="gamepad-2" className="w-6 h-6 opacity-50" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-base">[오픈하기] 카발RED</p>
+                    <p className="text-xs text-gray-500">최초 오픈하면</p>
+                  </div>
+                  <span className="text-blue-600 font-bold flex items-center">
+                    <Icon name="sparkles" className="w-4 h-4 mr-1 text-blue-400"/> 144
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-lg text-[#333]">함께하는 특별 미션</h3>
+                  <button className="text-sm text-gray-500 flex items-center">더보기 &gt;</button>
+                </div>
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex items-center">
+                  <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mr-3">
+                      <Icon name="gift" className="w-6 h-6 text-red-500"/>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-base">더 커진 친구 초대</p>
+                    <p className="text-xs text-gray-500">가입 보상에 활동 보너스까지!</p>
+                  </div>
+                  <span className="text-blue-600 font-bold flex items-center">
+                    <Icon name="sparkles" className="w-4 h-4 mr-1 text-blue-400"/> 500P
+                  </span>
+                </div>
+              </div>
+
+              {/* Bottom Nav */}
+              <div className="h-16 bg-white border-t border-gray-100 flex justify-around items-center sticky bottom-0 z-10">
+                <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                  <Icon name="search" className="w-5 h-5" />
+                  <span className="text-xs mt-1">검색</span>
+                </button>
+                <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                  <Icon name="zap" className="w-5 h-5" />
+                  <span className="text-xs mt-1">이슈</span>
+                </button>
+                <button className="flex flex-col items-center text-blue-600">
+                  <Icon name="gift" className="w-5 h-5" />
+                  <span className="text-xs mt-1">혜택</span>
+                </button>
+                <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                  <Icon name="more-horizontal" className="w-5 h-5" />
+                  <span className="text-xs mt-1">더보기</span>
+                </button>
+              </div>
+
             </div>
-
-            {/* Mission Lists */}
-            <div className="mt-8 px-4 flex-1 pb-20">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-lg text-[#333]">기간 한정 미션</h3>
-                <button className="text-sm text-gray-500 flex items-center">더보기 &gt;</button>
-              </div>
-              <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex items-center">
-                <div className="w-12 h-12 rounded-lg mr-3 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500">
-                    <Icon name="gamepad-2" className="w-6 h-6 opacity-50" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-base">[오픈하기] 카발RED</p>
-                  <p className="text-xs text-gray-500">최초 오픈하면</p>
-                </div>
-                <span className="text-blue-600 font-bold flex items-center">
-                  <Icon name="sparkles" className="w-4 h-4 mr-1 text-blue-400"/> 144
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-lg text-[#333]">함께하는 특별 미션</h3>
-                <button className="text-sm text-gray-500 flex items-center">더보기 &gt;</button>
-              </div>
-              <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex items-center">
-                <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mr-3">
-                    <Icon name="gift" className="w-6 h-6 text-red-500"/>
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-base">더 커진 친구 초대</p>
-                  <p className="text-xs text-gray-500">가입 보상에 활동 보너스까지!</p>
-                </div>
-                <span className="text-blue-600 font-bold flex items-center">
-                  <Icon name="sparkles" className="w-4 h-4 mr-1 text-blue-400"/> 500P
-                </span>
-              </div>
-            </div>
-
-            {/* Bottom Nav */}
-            <div className="h-16 bg-white border-t border-gray-100 flex justify-around items-center sticky bottom-0 z-10">
-              <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-                <Icon name="search" className="w-5 h-5" />
-                <span className="text-xs mt-1">검색</span>
-              </button>
-              <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-                <Icon name="zap" className="w-5 h-5" />
-                <span className="text-xs mt-1">이슈</span>
-              </button>
-              <button className="flex flex-col items-center text-blue-600">
-                <Icon name="gift" className="w-5 h-5" />
-                <span className="text-xs mt-1">혜택</span>
-              </button>
-              <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-                <Icon name="more-horizontal" className="w-5 h-5" />
-                <span className="text-xs mt-1">더보기</span>
-              </button>
-            </div>
-
           </div>
-        </div>
-      );
-    };
+        );
+      };
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
   </script>
 </body>
 </html>
