@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <!-- PC에서 열어도 모바일처럼 보이도록 뷰포트 고정 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>줌 앱 - 메인 미션 개편</title>
+  <title>Zoom App - My Pet Mission</title>
   
   <!-- Pretendard Web Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -358,7 +358,7 @@
             </div>
 
             {/* Main Content (Gradient Background) */}
-            <div className="flex-1 bg-gradient-to-b from-[#E3F2FD] to-white"> 
+            <div className="flex-1 bg-gradient-to-b from-[#E3F2FD] to-white overflow-y-auto"> 
             
               {/* Pet Section Text & Bubble */}
               <div className="p-4 text-center mt-4">
@@ -366,7 +366,7 @@
                   톡톡! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
-                  동물 또는 인물 사진을 등록하고 나만의 펫을 만들어보세요!
+                  사진 등록하고 나만의 펫을 만들어보세요!
                 </p>
 
                 {/* Message Bubble (확정된 상태에서만 나옴) */}
@@ -496,14 +496,13 @@
               </div>
 
               {/* Mission Lists */}
-              <div className="mt-8 px-4 pb-20">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-lg text-[#333]">기간 한정 미션</h3>
-                  <button className="text-sm text-gray-500 flex items-center">더보기 &gt;</button>
-                </div>
-                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex items-center">
-                  <div className="w-12 h-12 rounded-lg mr-3 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500">
-                      <Icon name="gamepad-2" className="w-6 h-6 opacity-50" />
+              <div className="mt-8 px-4 pb-4"> {/* pb-20 대신 pb-4로 여백을 줄여 다음 섹션과의 간격 조정 */}
+                <h3 className="font-bold text-lg text-[#333] mb-4">기간 한정 미션</h3>
+                
+                {/* 1. 카발RED (기존) */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
+                  <div className="w-10 h-10 rounded-lg mr-3 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500">
+                      <Icon name="gamepad-2" className="w-5 h-5 opacity-50" />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-base">[오픈하기] 카발RED</p>
@@ -514,13 +513,38 @@
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-lg text-[#333]">함께하는 특별 미션</h3>
-                  <button className="text-sm text-gray-500 flex items-center">더보기 &gt;</button>
+                {/* 2. 가위바위보 챌린지 (추가) */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
+                  <div className="w-10 h-10 rounded-lg mr-3 bg-yellow-100 flex items-center justify-center text-yellow-500">
+                      <Icon name="hand" className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-base">가위바위보 챌린지</p>
+                    <p className="text-xs text-gray-500">이길수록 커지는 보상</p>
+                  </div>
+                  <span className="text-blue-600 font-bold text-sm">
+                    최대 100P
+                  </span>
                 </div>
-                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-6 flex items-center">
-                  <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mr-3">
-                      <Icon name="gift" className="w-6 h-6 text-red-500"/>
+
+                {/* 3. 출석 체크 (추가) */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
+                  <div className="w-10 h-10 rounded-lg mr-3 bg-purple-100 flex items-center justify-center text-purple-500">
+                      <Icon name="calendar" className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-base">출석 체크</p>
+                    <p className="text-xs text-gray-500">누구나 1P에 보너스까지</p>
+                  </div>
+                  <span className="text-blue-600 font-bold text-sm">
+                    최대 11P
+                  </span>
+                </div>
+
+                {/* 4. 친구 초대 (기존: 함께하는 특별 미션) */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
+                  <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mr-3">
+                      <Icon name="users" className="w-5 h-5 text-red-500"/>
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-base">더 커진 친구 초대</p>
@@ -532,26 +556,81 @@
                 </div>
               </div>
 
-              {/* Bottom Nav */}
-              <div className="h-16 bg-white border-t border-gray-100 flex justify-around items-center sticky bottom-0 z-10">
-                <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-                  <Icon name="search" className="w-5 h-5" />
-                  <span className="text-xs mt-1">검색</span>
-                </button>
-                <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-                  <Icon name="zap" className="w-5 h-5" />
-                  <span className="text-xs mt-1">이슈</span>
-                </button>
-                <button className="flex flex-col items-center text-blue-600">
-                  <Icon name="gift" className="w-5 h-5" />
-                  <span className="text-xs mt-1">혜택</span>
-                </button>
-                <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
-                  <Icon name="more-horizontal" className="w-5 h-5" />
-                  <span className="text-xs mt-1">더보기</span>
-                </button>
+
+              {/* 간단 클릭 미션 (New Section) */}
+              <div className="px-4 pb-20"> 
+                <h3 className="font-bold text-lg text-[#333] mb-4">간단 클릭 미션</h3>
+
+                {/* 1. 오늘의 선물상자 */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-lg mr-3 bg-red-100 flex items-center justify-center text-red-500">
+                        <Icon name="gift" className="w-5 h-5"/>
+                    </div>
+                    <div>
+                      <p className="font-medium text-base">오늘의 선물상자</p>
+                      <p className="text-xs text-gray-500">5일 연속 열면 추가 보너스</p>
+                    </div>
+                  </div>
+                  <button className="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg text-sm font-medium transition-colors active:scale-95">
+                    받기
+                  </button>
+                </div>
+                
+                {/* 2. 3초만에 포인트 받기 */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-lg mr-3 bg-red-100 flex items-center justify-center text-red-500">
+                        <Icon name="timer" className="w-5 h-5"/>
+                    </div>
+                    <div>
+                      <p className="font-medium text-base">3초만에 포인트 받기</p>
+                      <p className="text-xs text-gray-500">버튼만 눌러도 적립</p>
+                    </div>
+                  </div>
+                  <span className="text-blue-600 font-bold text-sm">
+                    10P
+                  </span>
+                </div>
+                
+                {/* 3. 포인트 모으기+ */}
+                <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-lg mr-3 bg-yellow-100 flex items-center justify-center text-yellow-600">
+                        <Icon name="coins" className="w-5 h-5"/>
+                    </div>
+                    <div>
+                      <p className="font-medium text-base">포인트 모으기+</p>
+                      <p className="text-xs text-gray-500">최대 19,397,012P</p>
+                    </div>
+                  </div>
+                   <button className="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg text-sm font-medium transition-colors active:scale-95">
+                    받기
+                  </button>
+                </div>
+
               </div>
 
+            </div>
+            
+            {/* Bottom Nav (PC에서 하단에 고정되도록 Main Content 밖으로 이동) */}
+            <div className="h-16 bg-white border-t border-gray-100 flex justify-around items-center z-10">
+              <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <Icon name="search" className="w-5 h-5" />
+                <span className="text-xs mt-1">검색</span>
+              </button>
+              <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <Icon name="zap" className="w-5 h-5" />
+                <span className="text-xs mt-1">이슈</span>
+              </button>
+              <button className="flex flex-col items-center text-blue-600">
+                <Icon name="gift" className="w-5 h-5" />
+                <span className="text-xs mt-1">혜택</span>
+              </button>
+              <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
+                <Icon name="more-horizontal" className="w-5 h-5" />
+                <span className="text-xs mt-1">더보기</span>
+              </button>
             </div>
           </div>
         );
