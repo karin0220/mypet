@@ -153,22 +153,90 @@
             return () => { document.head.removeChild(styleTag); };
         }, []);
 
-
+      // [추가] 로딩 텍스트 시퀀스 정의
+      const LOADING_STEPS = ['몸 만드는 중', '얼굴 만드는 중', '마음을 넣는 중', '사랑과 애정을 담는 중'];
+      const STEP_INTERVAL_MS = 1500; // 2000ms -> 1500ms로 변경
+      
       const [selectedImage, setSelectedImage] = React.useState(null);
       const [generatedImage, setGeneratedImage] = React.useState(null);
       const [isLoading, setIsLoading] = React.useState(false);
       const [error, setError] = React.useState('');
       const [isPetConfirmed, setIsPetConfirmed] = React.useState(false);
+      const [currentLoadingStep, setCurrentLoadingStep] = React.useState(0);
       
       const promptStyle = 'A full-body, centered, 3D cute character, rounded, smooth, plush texture, soft studio lighting. The character must be fully isolated on a clean, solid white background and fill most of the frame. Single subject only, no shadows.';
       
       const fileInputRef = React.useRef(null);
       const petImgRef = React.useRef(null); 
-      // [수정] 디바운스 시간 측정을 위한 Ref (카운팅에만 적용)
       const lastTouchTime = React.useRef(0); 
-      const COUNT_DEBOUNCE_MS = 400; // 1초 -> 0.7초로 변경
+      const COUNT_DEBOUNCE_MS = 700; 
+      const intervalRef = React.useRef(null);
+      const apiResultRef = React.useRef(null); // API 결과 저장을 위한 Ref
+
       // API Key - Vercel 배포 시 여기에 키를 넣어주세요.
       const apiKey = "AIzaSyBevGnutE8zEpryOhayzsxrOT4rBrYNAWI"; 
+
+      // 로딩 완료 후 처리 함수 (이미지 표시 및 상태 리셋)
+      const handleLoadingComplete = (result) => {
+          apiResultRef.current = null; 
+          clearInterval(intervalRef.current);
+          
+          try {
+              if (result.error) throw new Error(result.error.message || '이미지 생성 실패');
+              
+              const generatedPart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+              if (generatedPart) {
+                setGeneratedImage(`data:${generatedPart.inlineData.mimeType};base64,${generatedPart.inlineData.data}`);
+                setIsPetConfirmed(false); 
+              } else {
+                throw new Error('API에서 이미지를 반환하지 않았습니다.');
+              }
+          } catch (err) {
+              console.error(err);
+              setError(err.message || '이미지 생성 처리 중 에러 발생');
+          } finally {
+              setIsLoading(false);
+          }
+      };
+
+
+      // 로딩 시퀀스를 관리하는 useEffect (API 호출과 분리)
+      // [수정] API 완료가 타이머보다 우선하도록 로직 변경
+      React.useEffect(() => {
+        if (isLoading) {
+          // A. 시퀀스 타이머 시작
+          setCurrentLoadingStep(0); 
+          apiResultRef.current = null; // 로딩 시작 시 결과 리셋
+          
+          intervalRef.current = setInterval(() => {
+            setCurrentLoadingStep(prev => {
+              const nextStep = prev + 1;
+              
+              // 1. API 결과가 이미 있다면 타이머는 중단하고 완료 처리
+              if (apiResultRef.current) {
+                  handleLoadingComplete(apiResultRef.current);
+                  return LOADING_STEPS.length - 1; // 상태 업데이트는 마지막으로
+              }
+              
+              // 2. 텍스트 단계를 순차적으로 진행
+              if (nextStep < LOADING_STEPS.length) {
+                return nextStep;
+              }
+              
+              // 3. 텍스트는 끝났고 API를 계속 기다려야 함 (마지막 텍스트 유지)
+              return LOADING_STEPS.length - 1; 
+            });
+          }, STEP_INTERVAL_MS);
+        }
+        
+        // Cleanup 함수
+        return () => {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
+        };
+      }, [isLoading]);
+
 
       const resizeImage = (file, maxWidth = 1024, maxHeight = 1024) => {
         return new Promise((resolve) => {
@@ -215,15 +283,16 @@
           setSelectedImage(resizedDataUrl);
         } catch (err) {
           setError('이미지 처리 실패');
-        } finally {
-          setIsLoading(false);
-        }
+          setIsLoading(false); // 에러 발생 시 로딩 종료
+        } 
       };
 
       const generateAIImage = async () => {
         if (!selectedImage) return;
-        setIsLoading(true);
+        setIsLoading(true); // 로딩 상태 시작 -> useEffect가 타이머 작동 시작
         setError('');
+        apiResultRef.current = null; // API 결과 리셋
+
         try {
           const base64Data = selectedImage.split(',')[1];
           const response = await fetch(
@@ -242,20 +311,27 @@
               })
             }
           );
+          
           const result = await response.json();
           if (!response.ok) throw new Error(result.error?.message || 'API Error');
-          const generatedPart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-          if (generatedPart) {
-            setGeneratedImage(`data:${generatedPart.inlineData.mimeType};base64,${generatedPart.inlineData.data}`);
-            setIsPetConfirmed(false); 
-          } else {
-            throw new Error('이미지 생성 실패');
+          
+          // [수정] API 결과만 일단 저장하고, 타이머가 다음 단계에서 완료를 처리하도록 맡김.
+          apiResultRef.current = result; 
+          
+          // 만약 API가 엄청 빠르게 끝나서 타이머가 아직 0단계라면, 1단계에서 즉시 완료되도록 처리됨.
+          if (!isLoading) { // API가 너무 빨리 끝나서 isLoading이 이미 false로 바뀌었다면... (안전장치)
+             handleLoadingComplete(apiResultRef.current);
           }
+
         } catch (err) {
           console.error(err);
-          setError(err.message);
-        } finally {
-          setIsLoading(false);
+          // 에러가 났을 경우에도 타이머가 멈추도록 결과에 에러를 담아 완료 로직을 태움.
+          apiResultRef.current = { error: { message: err.message } };
+          
+          // 에러 발생 시에도 타이머가 돌고 있을 수 있으므로, isLoading이 true일 경우를 대비해 둠
+          if (!isLoading) {
+              handleLoadingComplete(apiResultRef.current);
+          }
         }
       };
 
@@ -347,6 +423,9 @@
             setPoints(prev => prev + 100);
         }, 800);
       };
+      
+      // 로딩 상태에서 보여줄 텍스트
+      const loadingMessage = LOADING_STEPS[currentLoadingStep];
 
       return (
         <div className="app-container w-full max-w-[420px] bg-white shadow-lg min-h-screen flex flex-col relative select-none">
@@ -431,7 +510,8 @@
                   {isLoading ? (
                     <div className="flex flex-col items-center justify-center text-blue-600">
                       <Icon name="loader-2" className="w-10 h-10 animate-spin" />
-                      <span className="mt-2 text-sm">펫 생성 중...</span>
+                      {/* [수정] 순차 로딩 텍스트 표시 */}
+                      <span className="mt-2 text-sm font-semibold text-center whitespace-nowrap">{loadingMessage}...</span>
                     </div>
                   ) : generatedImage ? (
                     <>
