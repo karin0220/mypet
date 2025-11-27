@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <!-- PC에서 열어도 모바일처럼 보이도록 뷰포트 고정 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Zoom App - My Pet Mission</title>
+  <title>줌 앱 - 메인 미션 개편안</title>
   
   <!-- Pretendard Web Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -57,7 +57,7 @@
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width={size}
-          height={size}
+          height={size} 
           viewBox="0 0 24 24"
           fill="none"
           stroke={color}
@@ -163,6 +163,10 @@
       const promptStyle = 'A full-body, centered, 3D cute character, rounded, smooth, plush texture, soft studio lighting. The character must be fully isolated on a clean, solid white background and fill most of the frame. Single subject only, no shadows.';
       
       const fileInputRef = React.useRef(null);
+      const petImgRef = React.useRef(null); 
+      // [수정] 디바운스 시간 측정을 위한 Ref (카운팅에만 적용)
+      const lastTouchTime = React.useRef(0); 
+      const COUNT_DEBOUNCE_MS = 400; // 1초 -> 0.7초로 변경
       // API Key - Vercel 배포 시 여기에 키를 넣어주세요.
       const apiKey = "AIzaSyBevGnutE8zEpryOhayzsxrOT4rBrYNAWI"; 
 
@@ -276,12 +280,10 @@
       const [showReward, setShowReward] = React.useState(false);
       const [petMessage, setPetMessage] = React.useState('안녕? 나랑 놀자!');
       const maxTouchCount = 12;
-      const [isAnimating, setIsAnimating] = React.useState(false);
       const [showCoin, setShowCoin] = React.useState(false);
       const [points, setPoints] = React.useState(10419);
       const [hearts, setHearts] = React.useState([]);
 
-      // [수정 2] 더 다양하고 사랑스러운 대사 추가
       const randomMessages = [
         "날 만들어줘서 고마워! 🥺", "항상 함께할게 약속! 🤝", "오늘도 같이 힘내자! 🔥",
         "너무 오래두면 외로울지도 몰라 😭", "고마워! 🥰", "기분 최고야! ✨", 
@@ -290,12 +292,16 @@
       ];
 
       const handlePetTouch = () => {
-        if (isLoading || !generatedImage || isAnimating || showReward || !isPetConfirmed) return; 
+        if (isLoading || !generatedImage || showReward || !isPetConfirmed) return; 
+        
+        const imgElement = petImgRef.current;
+        if (!imgElement) return;
 
-        setIsAnimating(true);
-        setTimeout(() => setIsAnimating(false), 300);
+        // A. 애니메이션 및 하트 이펙트 (항상 실행)
+        imgElement.classList.remove('animate-squish');
+        void imgElement.offsetWidth; 
+        imgElement.classList.add('animate-squish');
 
-        // 하트 생성 로직
         const newHeart = { 
             id: Date.now(), 
             offsetX: (Math.random() - 0.5) * 40,
@@ -306,6 +312,15 @@
         setTimeout(() => {
             setHearts(prev => prev.filter(h => h.id !== newHeart.id));
         }, 1000);
+        // A. 끝
+
+        // B. 카운팅 및 대사 변경 로직 (0.7초 디바운스 적용)
+        const now = Date.now();
+        if (now - lastTouchTime.current < COUNT_DEBOUNCE_MS) {
+            // 0.7초가 안 지났으면 카운트와 대사 변경은 무시
+            return; 
+        }
+        lastTouchTime.current = now; // 카운트 시간 업데이트
 
         const newTouchCount = touchCount + 1;
         setTouchCount(newTouchCount);
@@ -319,6 +334,7 @@
           setPetMessage('선물 줄게! 받아가! 🎁');
           setShowReward(true);
         }
+        // B. 끝
       };
 
       const claimReward = () => {
@@ -420,10 +436,11 @@
                   ) : generatedImage ? (
                     <>
                       <img 
+                        ref={petImgRef} 
                         src={generatedImage} 
                         alt="My Pet" 
-                        // object-contain으로 수정하여 펫이 잘리지 않고 원형 안에 들어오도록 함
-                        className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''} ${isAnimating ? 'animate-squish' : ''}`}
+                        // isAnimating 상태 제거하고, 등장 애니메이션만 유지
+                        className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''}`} 
                       />
                     </>
                   ) : selectedImage ? (
@@ -496,7 +513,7 @@
               </div>
 
               {/* Mission Lists */}
-              <div className="mt-8 px-4 pb-4"> {/* pb-20 대신 pb-4로 여백을 줄여 다음 섹션과의 간격 조정 */}
+              <div className="mt-8 px-4 pb-4"> 
                 <h3 className="font-bold text-lg text-[#333] mb-4">기간 한정 미션</h3>
                 
                 {/* 1. 카발RED (기존) */}
@@ -558,7 +575,7 @@
 
 
               {/* 간단 클릭 미션 (New Section) */}
-              <div className="px-4 pb-4"> {/* pb-20 -> pb-4로 수정하여 바닥 여백 제거 */}
+              <div className="px-4 pb-4"> 
                 <h3 className="font-bold text-lg text-[#333] mb-4">간단 클릭 미션</h3>
 
                 {/* 1. 오늘의 선물상자 */}
