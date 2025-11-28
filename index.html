@@ -464,7 +464,8 @@
                               left: `${heart.x}%`, // x 좌표를 퍼센트로
                               transform: `translate(-50%, -50%) rotate(${heart.rotation}deg)`,
                               animationDelay: `${heart.delay}s`,
-                              animationDuration: '1.2s'
+                              animationDuration: '1.2s',
+                              zIndex: 30 // [수정] 펫보다 위에 오도록 z-index 추가
                           }}
                       >
                           ❤️
@@ -483,6 +484,7 @@
                         src={generatedImage} 
                         alt="My Pet" 
                         className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''}`} 
+                        style={{zIndex: 20}} // 펫은 하트보다 아래에 렌더링되도록 z-index 추가
                       />
                     </>
                   ) : selectedImage ? (
