@@ -433,7 +433,7 @@
                   <div className={`
                     absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-35 transition-all duration-300 // Z-Index 35 (하트 아래, 펫 위)
                     ${showReward ? 'animate-bounce' : 'animate-scale-in'}
-                  `} style={{ top: '100px' }} // 펫 원형 근처로 강제 배치
+                  `} style={{ top: '110px', zIndex: 35 }} // Z-Index 35 명시
                   >
                     <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{petMessage}</p>
                     {showReward && (
@@ -455,7 +455,7 @@
                   className={`relative w-full aspect-square max-w-[300px] mx-auto rounded-full flex items-center justify-center cursor-pointer overflow-hidden p-4 border-4 transition-all duration-500 
                   bg-white ${glowClass}`} 
                   onClick={generatedImage && isPetConfirmed ? handlePetTouch : handlePetAreaClick}
-                  style={{ WebkitTapHighlightColor: 'transparent' }} 
+                  style={{ WebkitTapHighlightColor: 'transparent', zIndex: 10 }} // 원형 컨테이너를 Z-Index 10으로 강제 낮춤
                 >
                   {/* 하트 렌더링 */}
                   {isPetConfirmed && hearts.map(heart => (
@@ -469,7 +469,7 @@
                               transform: `translate(-50%, -50%) rotate(${heart.rotation}deg)`,
                               animationDelay: `${heart.delay}s`,
                               animationDuration: '1.2s',
-                              zIndex: 40 // 하트는 Z-Index 40
+                              zIndex: 40 // 하트는 Z-Index 40 (가장 위)
                           }}
                       >
                           ❤️
@@ -488,7 +488,7 @@
                         src={generatedImage} 
                         alt="My Pet" 
                         className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''}`} 
-                        style={{zIndex: 20}} // 펫은 Z-Index 20
+                        style={{zIndex: 20}} // 펫 이미지는 Z-Index 20
                       />
                     </>
                   ) : selectedImage ? (
