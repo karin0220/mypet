@@ -430,7 +430,7 @@
                 
                 {generatedImage && isPetConfirmed && (
                   <div className={`
-                    absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-20 transition-all duration-300
+                    absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-35 transition-all duration-300 // [수정] Z-Index 35
                     ${showReward ? 'animate-bounce' : 'animate-scale-in'}
                   `}>
                     <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{petMessage}</p>
@@ -465,7 +465,7 @@
                               transform: `translate(-50%, -50%) rotate(${heart.rotation}deg)`,
                               animationDelay: `${heart.delay}s`,
                               animationDuration: '1.2s',
-                              zIndex: 30 // [수정] 펫보다 위에 오도록 z-index 추가
+                              zIndex: 40 // [수정] 가장 위로 z-index 40
                           }}
                       >
                           ❤️
@@ -484,7 +484,7 @@
                         src={generatedImage} 
                         alt="My Pet" 
                         className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''}`} 
-                        style={{zIndex: 20}} // 펫은 하트보다 아래에 렌더링되도록 z-index 추가
+                        style={{zIndex: 20}} // 펫은 z-index 20
                       />
                     </>
                   ) : selectedImage ? (
