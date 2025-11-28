@@ -422,7 +422,7 @@
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
-                  톡톡! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
+                  터치터치! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
                   {subHeaderText} 
@@ -502,6 +502,7 @@
                       <Icon name="upload" className="w-10 h-10 mb-2" />
                       <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
                       <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
+                      <span className="text-xs text-gray-500 mt-1">(단독으로 나온 사진일 수록 결과가 좋아요)</span>
                     </div>
                   )}
                   
@@ -519,7 +520,7 @@
                       onClick={(e) => { e.stopPropagation(); generateAIImage(); }}
                       className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg transition-all active:scale-95 z-10 whitespace-nowrap"
                     >
-                      <Icon name="sparkles" className="w-4 h-4" /> 펫으로 변환하기
+                      <Icon name="sparkles" className="w-4 h-4" /> 펫으로 바꾸기
                     </button>
                   )}
                 </div>
@@ -529,7 +530,7 @@
                       onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }}
                       className="w-full max-w-[300px] mx-auto mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap flex items-center justify-center gap-2"
                     >
-                      <Icon name="trash-2" className="w-4 h-4" /> 펫 버리기
+                      <Icon name="trash-2" className="w-4 h-4" /> 펫 쫓아내기
                     </button>
                 )}
 
