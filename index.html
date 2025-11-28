@@ -496,7 +496,7 @@
                     <div className="flex flex-col items-center justify-center text-blue-600">
                       <Icon name="loader-2" className="w-10 h-10 animate-spin" />
                       {/* [수정] 단순 로딩 텍스트로 대체 */}
-                      <span className="mt-2 text-sm font-semibold text-center whitespace-nowrap">펫에 생명을 불어넣는 중...</span>
+                      <span className="mt-2 text-sm font-semibold text-center whitespace-nowrap">펫에 영혼을 불어넣는 중</span>
                     </div>
                   ) : generatedImage ? (
                     <>
@@ -539,18 +539,20 @@
                       <Icon name="sparkles" className="w-4 h-4" /> 펫으로 변환하기
                     </button>
                   )}
-
-                  {/* Overlays: 3. 확정 후 (리셋 버튼) - 원형 안에 top-right에 위치 */}
-                  {generatedImage && isPetConfirmed && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }} // 리셋 시 하트 배열도 초기화
-                      className="absolute top-4 right-4 p-2 bg-black/40 rounded-full text-white hover:bg-red-500/70 transition-colors z-10"
-                    >
-                      <Icon name="x" className="w-4 h-4" />
-                    </button>
-                  )}
                 </div>
                 
+                {/* Overlays: 3. 펫 버리기 버튼 (확정 후 원형 바깥에 배치) */}
+                {generatedImage && isPetConfirmed && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }}
+                      // 버튼을 원형 바깥 하단에 배치하여 눈에 띄게 수정
+                      className="w-full max-w-[300px] mx-auto mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap flex items-center justify-center gap-2"
+                    >
+                      <Icon name="trash-2" className="w-4 h-4" /> 펫 버리기
+                    </button>
+                )}
+
+
                 {/* Overlays: 2. 이미지 생성 후 (확정/다시 만들기) - Pet Interaction Area 밖으로 분리 */}
                 {generatedImage && !isPetConfirmed && !isLoading && (
                     <div className="mt-6 w-full max-w-[300px] mx-auto flex flex-col gap-2 z-20"> 
