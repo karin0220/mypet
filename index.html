@@ -428,12 +428,13 @@
                   {subHeaderText} 
                 </p>
                 
-                {/* [수정 시작] 말풍선 위치 조정 및 Z-Index 정렬 */}
+                {/* [수정 시작] 말풍선 위치 조정: 원형 컨테이너 위로 */}
                 {generatedImage && isPetConfirmed && (
                   <div className={`
                     absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-35 transition-all duration-300 // Z-Index 35 (하트 아래, 펫 위)
                     ${showReward ? 'animate-bounce' : 'animate-scale-in'}
-                  `}>
+                  `} style={{ top: '100px' }} // 펫 원형 근처로 강제 배치
+                  >
                     <p className="text-sm font-medium text-gray-700 whitespace-nowrap">{petMessage}</p>
                     {showReward && (
                       <button
@@ -446,7 +447,7 @@
                     <div className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[10px] border-t-white"></div>
                   </div>
                 )}
-                {/* [수정 끝] 말풍선 위치 조정 및 Z-Index 정렬 */}
+                {/* [수정 끝] 말풍선 위치 조정 */}
 
 
                 {/* Pet Interaction Area */}
