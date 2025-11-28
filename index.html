@@ -377,7 +377,7 @@
       
       const subHeaderText = isPetConfirmed 
         ? '펫을 마구 터치해서 보상을 받아보세요!' 
-        : '사진 등록하고 나만의 펫을 만들어보세요!';
+        : '사진을 등록하고 나만의 펫을 만들어보세요!';
         
       
       let glowClass = 'shadow-inner-custom border-white/50';
@@ -403,8 +403,8 @@
                 </div>
             )}
 
-            {/* Top Bar */}
-            <div className="p-4 flex items-center justify-between border-b border-gray-100 sticky top-0 bg-white z-10">
+            {/* Top Bar (Fixed Position) */}
+            <div className="fixed w-full max-w-[420px] top-0 p-4 flex items-center justify-between border-b border-gray-100 bg-white z-50"> {/* Z-Index 50으로 최상위 고정 */}
               <div className="flex items-center relative">
                 <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFE54C] mr-2">
                   <span className="font-bold text-sm text-[#3E2723]">P</span>
@@ -416,9 +416,9 @@
                 <button className="px-3 py-1 bg-blue-500 text-white rounded-full text-sm">포인트 전환</button>
               </div>
             </div>
-
-            {/* Main Content */}
-            <div className="flex-1 bg-gradient-to-b from-[#E3F2FD] to-white overflow-y-auto"> 
+            
+            {/* Main Content (Scrollable Area) */}
+            <div className="flex-1 bg-gradient-to-b from-[#E3F2FD] to-white overflow-y-auto pt-16 pb-16"> {/* 고정된 헤더/바텀바 높이만큼 패딩 추가 */}
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
@@ -431,7 +431,7 @@
                 {/* [수정 시작] 말풍선 위치 조정: 원형 컨테이너 위로 */}
                 {generatedImage && isPetConfirmed && (
                   <div className={`
-                    absolute top-[-30px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-35 transition-all duration-300 // Z-Index 35 (하트 아래, 펫 위)
+                    absolute left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-35 transition-all duration-300 // Z-Index 35 (하트 아래, 펫 위)
                     ${showReward ? 'animate-bounce' : 'animate-scale-in'}
                   `} style={{ top: '110px', zIndex: 35 }} // Z-Index 35 명시
                   >
@@ -501,8 +501,7 @@
                     <div className="flex flex-col items-center justify-center text-blue-500">
                       <Icon name="upload" className="w-10 h-10 mb-2" />
                       <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
-                      <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
-                      <span className="text-xs text-gray-500 mt-1">(단독으로 나온 사진일 수록 결과가 좋아요)</span>
+                      <span className="text-xs text-gray-500 mt-1">단독사진이 결과가 더 좋아요</span>
                     </div>
                   )}
                   
@@ -671,8 +670,8 @@
 
             </div>
             
-            {/* Bottom Nav */}
-            <div className="h-16 bg-white border-t border-gray-100 flex justify-around items-center z-10">
+            {/* Bottom Nav (Fixed Position) */}
+            <div className="fixed w-full max-w-[420px] bottom-0 h-16 bg-white border-t border-gray-100 flex justify-around items-center z-50"> {/* Z-Index 50으로 최상위 고정 */}
               <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
                 <Icon name="search" className="w-5 h-5" />
                 <span className="text-xs mt-1">검색</span>
