@@ -177,7 +177,7 @@
               if (result.error) {
                   console.error("API Error:", result.error.message);
                   // 서버에서 온 에러는 깔끔하게 처리 (유출 경고 없음)
-                  setError("🚨 이미지 생성 실패. 서버 상태를 확인해주세요.");
+                  setError(result.error.message || '🚨 이미지 생성 실패. 서버 상태를 확인해주세요.');
                   return;
               }
               
@@ -237,10 +237,9 @@
         
         try {
           setIsLoading(true);
-          // [수정]: PNG 데이터를 서버에 보내도록 처리
           const resizedDataUrl = await resizeImage(file);
           setSelectedImage(resizedDataUrl);
-          setIsLoading(false); // 파일 선택 직후 로딩 종료
+          setIsLoading(false); 
         } catch (err) {
           setError('이미지 처리 실패');
           setIsLoading(false);
@@ -248,7 +247,6 @@
       };
 
 
-      // [핵심 수정]: API 대신 Vercel Function 호출로 변경 (키 입력 없이 바로 호출)
       const generateAIImage = async () => {
         if (!selectedImage) return;
 
@@ -266,10 +264,9 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  // 키는 보내지 않고, 필요한 데이터만 보냅니다.
+                  // 키는 보내지 않고, 필요한 데이터만 서버로 보냅니다.
                   base64Image: base64Data,
                   prompt: promptStyle,
-                  // [NEW] 서버에서 PNG 포맷으로 요청하도록 명시
                   mimeType: 'image/png' 
                 })
               }
@@ -321,39 +318,29 @@
         const imgElement = petImgRef.current;
         if (!imgElement) return;
 
-        // A. 애니메이션 및 하트 이펙트 (항상 실행)
         imgElement.classList.remove('animate-squish');
         void imgElement.offsetWidth; 
         imgElement.classList.add('animate-squish');
 
         const newHeart = { 
-            id: Date.now(), 
-            // [수정] 하트 위치 분산 범위 확대 (겹침 방지)
-            offsetX: (Math.random() - 0.5) * 100, // 80 -> 100 (더 넓게 퍼짐)
-            offsetY: (Math.random() - 0.5) * 100, // 80 -> 100 (더 넓게 퍼짐)
-            delay: Math.random() * 0.1 
+            id: Date.now() + Math.random(), // 고유 ID 보장 (빠른 연타 대비)
+            x: 20 + Math.random() * 60, 
+            y: 20 + Math.random() * 60,
+            rotation: (Math.random() - 0.5) * 40
         };
         
-        // [핵심 수정]: 이전 하트 삭제 로직을 제거하고, 새로운 하트만 추가하여 리렌더링 최소화
-        setHearts(prev => {
-            const newHearts = [...prev, newHeart];
-            
-            // 2초 후 DOM에서 해당 하트를 배열에서 제거 (메모리 관리 및 리렌더링 최소화)
-            setTimeout(() => {
-                setHearts(currentHearts => currentHearts.filter(h => h.id !== newHeart.id));
-            }, 2000); 
+        setHearts(prev => [...prev, newHeart]); // 기존 하트 유지, 새 하트 추가
 
-            return newHearts;
-        });
+        // 1.5초 후에 해당 하트만 제거 (setTimeout 활용)
+        setTimeout(() => {
+           setHearts(prev => prev.filter(h => h.id !== newHeart.id));
+        }, 1500);
 
-        
-        // B. 카운팅 및 대사 변경 로직 (0.7초 디바운스 적용)
         const now = Date.now();
         if (now - lastTouchTime.current < COUNT_DEBOUNCE_MS) {
-            // 0.7초가 안 지났으면 카운트와 대사 변경은 무시
             return; 
         }
-        lastTouchTime.current = now; // 카운트 시간 업데이트
+        lastTouchTime.current = now; 
 
         const newTouchCount = touchCount + 1;
         setTouchCount(newTouchCount);
@@ -367,7 +354,6 @@
           setPetMessage('선물 줄게! 받아가! 🎁');
           setShowReward(true);
         }
-        // B. 끝
       };
 
       const claimReward = () => {
@@ -380,17 +366,15 @@
         }, 800);
         setTimeout(() => {
             setShowCoin(false);
-        }, 1600); // 코인 애니메이션 재생 시간 고려해서 늦게 해제
-        setHearts([]); // 보상 획득 시 하트 배열 초기화 (메모리 해제)
+        }, 1600); 
+        setHearts([]); 
       };
       
-      // [수정 1] 텍스트 변경 로직
       const subHeaderText = isPetConfirmed 
         ? '펫을 마구 터치해서 보상을 받아보세요!' 
         : '사진 등록하고 나만의 펫을 만들어보세요!';
         
       
-      // [NEW] 단계별 글로우 클래스 계산
       let glowClass = 'shadow-inner-custom border-white/50';
       if (generatedImage && isPetConfirmed) {
           if (touchCount >= 12) {
@@ -414,7 +398,7 @@
                 </div>
             )}
 
-            {/* Top Bar (White Header) */}
+            {/* Top Bar */}
             <div className="p-4 flex items-center justify-between border-b border-gray-100 sticky top-0 bg-white z-10">
               <div className="flex items-center relative">
                 <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFE54C] mr-2">
@@ -428,19 +412,17 @@
               </div>
             </div>
 
-            {/* Main Content (Gradient Background) */}
+            {/* Main Content */}
             <div className="flex-1 bg-gradient-to-b from-[#E3F2FD] to-white overflow-y-auto"> 
             
-              {/* Pet Section Text & Bubble */}
               <div className="p-4 text-center mt-4">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
                   톡톡! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
-                  {subHeaderText} {/* [수정 1] 텍스트 변경 적용 */}
+                  {subHeaderText} 
                 </p>
-
-                {/* Message Bubble (확정된 상태에서만 나옴) */}
+                
                 {generatedImage && isPetConfirmed && (
                   <div className={`
                     absolute top-[160px] left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-20 transition-all duration-300
@@ -450,7 +432,6 @@
                     {showReward && (
                       <button
                         onClick={claimReward}
-                        // [수정 1] 패딩을 py-2로 늘려 박스와 텍스트 사이 여백 확보
                         className="mt-2 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-800 text-xs font-bold py-2 rounded-lg transition-all active:scale-95 whitespace-nowrap"
                       >
                         광고 보고 보상 받기 (+100P)
@@ -460,20 +441,18 @@
                   </div>
                 )}
 
-                {/* Pet Interaction Area (Always White Background inside the circle) */}
+                {/* Pet Interaction Area */}
                 <div 
-                  // [NEW] 단계별 글로우 클래스(glowClass) 적용
                   className={`relative w-full aspect-square max-w-[300px] mx-auto rounded-full flex items-center justify-center cursor-pointer overflow-hidden p-4 border-4 transition-all duration-500 
                   bg-white ${glowClass}`} 
                   onClick={generatedImage && isPetConfirmed ? handlePetTouch : handlePetAreaClick}
                   style={{ WebkitTapHighlightColor: 'transparent' }} 
                 >
-                  {/* 하트 파티클 렌더링 (확정된 상태에서만) */}
+                  {/* 하트 렌더링 */}
                   {isPetConfirmed && hearts.map(heart => (
                       <div 
                           key={heart.id} 
                           className="animate-heart-pop text-red-500 text-2xl"
-                          // [수정] 하트 위치 조정 및 애니메이션 시간 조정
                           style={{ 
                               top: '50%',
                               left: '50%',
@@ -489,7 +468,6 @@
                   {isLoading ? (
                     <div className="flex flex-col items-center justify-center text-blue-600">
                       <Icon name="loader-2" className="w-10 h-10 animate-spin" />
-                      {/* [수정] 단순 로딩 텍스트로 대체 */}
                       <span className="mt-2 text-sm font-semibold text-center whitespace-nowrap">펫에 영혼을 불어넣는 중</span>
                     </div>
                   ) : generatedImage ? (
@@ -498,7 +476,6 @@
                         ref={petImgRef} 
                         src={generatedImage} 
                         alt="My Pet" 
-                        // object-cover -> object-contain으로 다시 변경 (잘림 방지)
                         className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''}`} 
                       />
                     </>
@@ -524,8 +501,8 @@
                     className="hidden"
                   />
 
-                  {/* Overlays: 1. 파일 선택 직후 (변환하기) - 버튼은 원형 안에 표시됨 */}
-                  {selectedImage && !generatedImage && !isLoading && (
+                  {/* [수정 완료]: 사진이 선택되어 있고, 확정되지 않았으며, 로딩 중이 아닐 때만 버튼이 나타남 */}
+                  {selectedImage && !isPetConfirmed && !isLoading && !generatedImage && (
                     <button 
                       onClick={(e) => { e.stopPropagation(); generateAIImage(); }}
                       className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 shadow-lg transition-all active:scale-95 z-10 whitespace-nowrap"
@@ -535,11 +512,9 @@
                   )}
                 </div>
                 
-                {/* Overlays: 3. 펫 버리기 버튼 (확정 후 원형 바깥에 배치) */}
                 {generatedImage && isPetConfirmed && (
                     <button 
                       onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }}
-                      // 버튼을 원형 바깥 하단에 배치하여 눈에 띄게 수정
                       className="w-full max-w-[300px] mx-auto mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap flex items-center justify-center gap-2"
                     >
                       <Icon name="trash-2" className="w-4 h-4" /> 펫 버리기
@@ -547,7 +522,6 @@
                 )}
 
 
-                {/* Overlays: 2. 이미지 생성 후 (확정/다시 만들기) - Pet Interaction Area 밖으로 분리 */}
                 {generatedImage && !isPetConfirmed && !isLoading && (
                     <div className="mt-6 w-full max-w-[300px] mx-auto flex flex-col gap-2 z-20"> 
                         <button 
@@ -577,7 +551,6 @@
               <div className="mt-8 px-4 pb-4"> 
                 <h3 className="font-bold text-lg text-[#333] mb-4">기간 한정 미션</h3>
                 
-                {/* 1. 카발RED (기존) */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
                   <div className="w-10 h-10 rounded-lg mr-3 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-500">
                       <Icon name="gamepad-2" className="w-5 h-5 opacity-50" />
@@ -591,7 +564,6 @@
                   </span>
                 </div>
 
-                {/* 2. 가위바위보 챌린지 (추가) */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
                   <div className="w-10 h-10 rounded-lg mr-3 bg-yellow-100 flex items-center justify-center text-yellow-500">
                       <Icon name="hand" className="w-5 h-5" />
@@ -605,7 +577,6 @@
                   </span>
                 </div>
 
-                {/* 3. 출석 체크 (추가) */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
                   <div className="w-10 h-10 rounded-lg mr-3 bg-purple-100 flex items-center justify-center text-purple-500">
                       <Icon name="calendar" className="w-5 h-5" />
@@ -619,7 +590,6 @@
                   </span>
                 </div>
 
-                {/* 4. 친구 초대 (기존: 함께하는 특별 미션) */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center">
                   <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center mr-3">
                       <Icon name="users" className="w-5 h-5 text-red-500"/>
@@ -639,7 +609,6 @@
               <div className="px-4 pb-4"> 
                 <h3 className="font-bold text-lg text-[#333] mb-4">간단 클릭 미션</h3>
 
-                {/* 1. 오늘의 선물상자 */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-lg mr-3 bg-red-100 flex items-center justify-center text-red-500">
@@ -655,7 +624,6 @@
                   </button>
                 </div>
                 
-                {/* 2. 3초만에 포인트 받기 */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-lg mr-3 bg-red-100 flex items-center justify-center text-red-500">
@@ -671,7 +639,6 @@
                   </span>
                 </div>
                 
-                {/* 3. 포인트 모으기+ */}
                 <div className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 mb-3 flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 rounded-lg mr-3 bg-yellow-100 flex items-center justify-center text-yellow-600">
@@ -691,7 +658,7 @@
 
             </div>
             
-            {/* Bottom Nav (PC에서 하단에 고정되도록 Main Content 밖으로 이동) */}
+            {/* Bottom Nav */}
             <div className="h-16 bg-white border-t border-gray-100 flex justify-around items-center z-10">
               <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
                 <Icon name="search" className="w-5 h-5" />
