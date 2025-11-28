@@ -322,17 +322,22 @@
         void imgElement.offsetWidth; 
         imgElement.classList.add('animate-squish');
 
+        // [수정 1] 하트 좌표를 원형 컨테이너 안의 절대적인 위치로 설정 (0%~100%)
         const newHeart = { 
-            id: Date.now() + Math.random(), // 고유 ID 보장 (빠른 연타 대비)
-            x: 20 + Math.random() * 60, 
-            y: 20 + Math.random() * 60,
-            rotation: (Math.random() - 0.5) * 40
+            id: Date.now() + Math.random(), 
+            // 펫 원형 컨테이너 안에서 20%~80% 사이의 랜덤 위치
+            x: 20 + Math.random() * 60, // 20% to 80%
+            y: 20 + Math.random() * 60, // 20% to 80%
+            rotation: (Math.random() - 0.5) * 40,
+            delay: Math.random() * 0.1 
         };
         
-        setHearts(prev => [...prev, newHeart]); // 기존 하트 유지, 새 하트 추가
+        // [수정 2] 기존 하트 유지, 새 하트 추가
+        setHearts(prev => [...prev, newHeart]); 
 
         // 1.5초 후에 해당 하트만 제거 (setTimeout 활용)
         setTimeout(() => {
+           // 하트 배열에서 해당 ID를 가진 하트만 필터링하여 제거
            setHearts(prev => prev.filter(h => h.id !== newHeart.id));
         }, 1500);
 
@@ -454,9 +459,10 @@
                           key={heart.id} 
                           className="animate-heart-pop text-red-500 text-2xl"
                           style={{ 
-                              top: '50%',
-                              left: '50%',
-                              transform: `translate(calc(-50% + ${heart.offsetX}px), calc(-50% + ${heart.offsetY}px))`,
+                              position: 'absolute', // 절대 위치 설정
+                              top: `${heart.y}%`, // y 좌표를 퍼센트로
+                              left: `${heart.x}%`, // x 좌표를 퍼센트로
+                              transform: `translate(-50%, -50%) rotate(${heart.rotation}deg)`,
                               animationDelay: `${heart.delay}s`,
                               animationDuration: '1.2s'
                           }}
