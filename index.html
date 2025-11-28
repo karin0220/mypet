@@ -161,8 +161,8 @@
       const [error, setError] = React.useState('');
       const [isPetConfirmed, setIsPetConfirmed] = React.useState(false);
       
-      // [최종 수정]: AI 그림자/배경 제거를 위한 프롬프트 극딜 + 여백 추가 요청
-      const promptStyle = 'A full-body, centered, 3D cute character, rounded, smooth, plush texture, soft studio lighting, with large padding around the character. The character must be fully isolated on a flat pure white background, with NO shadows at all, or any kind of external lighting effects. Ensure the character is completely cut out and fills most of the frame. Single subject only, digital art style. lighting is flat and even on the character, but the background is rendered as a pure, uniform white, completely devoid of any light source, shadow, or gradient.';
+      // [최종 프롬프트 개선] 배경, 조명, 클레이펫화, 개성 유지, 사이즈 랜덤화 목표
+      const promptStyle = 'A full-body, centered, high-quality photorealistic clay render of the subject from the input image, in a cute toy style. The character must maintain the subject\'s original characteristics (human or animal features). The character must occupy between 70% and 85% of the frame. The background must be rendered as a pure, uniform white, completely devoid of any light source, shadow, or gradient. lighting is flat and even on the character, with no shadows on the background.';
       
       const fileInputRef = React.useRef(null);
       const petImgRef = React.useRef(null); 
@@ -254,17 +254,14 @@
         setError('');
         
         try {
-            // [수정]: data:image/png;base64, 로 시작하는지 확인하고 base64 데이터 추출
             const base64Data = selectedImage.split(',')[1];
             
             const response = await fetch(
-              // Vercel Function의 경로를 호출합니다. (자동으로 서버의 환경변수 키 사용)
               '/api/generate',
               {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  // 키는 보내지 않고, 필요한 데이터만 서버로 보냅니다.
                   base64Image: base64Data,
                   prompt: promptStyle,
                   mimeType: 'image/png' 
@@ -376,7 +373,7 @@
       };
       
       const subHeaderText = isPetConfirmed 
-        ? '펫을 마구 터치해서 보상을 받아보세요!' 
+        ? '펫을 마구 터치하면 보상이 나와요!' 
         : '사진을 등록하고 나만의 펫을 만들어보세요!';
         
       
@@ -422,7 +419,7 @@
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
-                  터치터치! 나만의 <span className="text-blue-600">펫</span>과 함께하는 미션
+                  터치터치! 나만의 <span className="text-blue-600">펫</span>쓰다듬고 보상받기
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
                   {subHeaderText} 
@@ -431,7 +428,7 @@
                 {/* [수정 시작] 말풍선 위치 조정: 원형 컨테이너 위로 */}
                 {generatedImage && isPetConfirmed && (
                   <div className={`
-                    absolute left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 z-35 transition-all duration-300 // Z-Index 35 (하트 아래, 펫 위)
+                    absolute left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-xl shadow-lg border-2 border-blue-400 transition-all duration-300 // Z-Index 35 (하트 아래, 펫 위)
                     ${showReward ? 'animate-bounce' : 'animate-scale-in'}
                   `} style={{ top: '110px', zIndex: 35 }} // Z-Index 35 명시
                   >
@@ -500,7 +497,7 @@
                   ) : (
                     <div className="flex flex-col items-center justify-center text-blue-500">
                       <Icon name="upload" className="w-10 h-10 mb-2" />
-                      <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
+                      <span className="text-sm font-medium">사진 넣고 펫 만들기</span>
                       <span className="text-xs text-gray-500 mt-1">단독사진이 결과가 더 좋아요</span>
                     </div>
                   )}
