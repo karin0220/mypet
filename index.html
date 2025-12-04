@@ -217,8 +217,8 @@
               canvas.height = height;
               const ctx = canvas.getContext('2d');
               ctx.drawImage(img, 0, 0, width, height);
-              // [수정]: toDataURL을 PNG로 변경 (투명도 지원)
-              resolve(canvas.toDataURL('image/png'));
+              // [수정]: toDataURL을 JPEG로 다시 복구 (클라이언트 로드 안정화)
+              resolve(canvas.toDataURL('image/jpeg', 0.8));
             };
             img.src = e.target.result;
           };
@@ -239,7 +239,8 @@
           setIsLoading(true);
           const resizedDataUrl = await resizeImage(file);
           setSelectedImage(resizedDataUrl);
-          setIsLoading(false); 
+          setError(''); // 성공적으로 로드되면 에러 메시지 초기화
+          setIsLoading(false); // 파일 선택 직후 로딩 종료
         } catch (err) {
           setError('이미지 처리 실패');
           setIsLoading(false);
@@ -263,7 +264,6 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                  // 키는 보내지 않고, 필요한 데이터만 서버로 보냅니다.
                   base64Image: base64Data,
                   prompt: promptStyle,
                   mimeType: 'image/png', 
@@ -370,7 +370,17 @@
         setHearts([]); 
       };
 
-      // [수정 1] 메인 텍스트 변경
+      const handleSelectNewPhoto = (e) => {
+          e.stopPropagation();
+          setSelectedImage(null);
+          setGeneratedImage(null);
+          setIsPetConfirmed(false);
+          setError('');
+          setTouchCount(0);
+          setHearts([]);
+      }
+      
+      // [수정] mainHeaderText 정의를 상단으로 이동
       const mainHeaderText = '터치터치! 나만의 펫 쓰다듬기'; 
       const subHeaderText = isPetConfirmed 
         ? '펫을 마구 터치해서 보상을 받아보세요!' 
@@ -419,7 +429,7 @@
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
-                  {mainHeaderText} {/* [수정 1] 메인 텍스트 변경 */}
+                  {mainHeaderText}
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
                   {subHeaderText} 
@@ -495,8 +505,8 @@
                   ) : (
                     <div className="flex flex-col items-center justify-center text-blue-500">
                       <Icon name="upload" className="w-10 h-10 mb-2" />
-                      <span className="text-sm font-medium">사진 넣고 펫 만들기</span> {/* [수정 3] */}
-                      <span className="text-xs text-gray-500 mt-1">터치하고 이미지 선택</span> {/* [수정 4] */}
+                      <span className="text-sm font-medium">사진 넣고 펫 만들기</span>
+                      <span className="text-xs text-gray-500 mt-1">터치하고 이미지 선택</span>
                     </div>
                   )}
                   
@@ -515,13 +525,13 @@
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash'); }}
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="sparkles" className="w-4 h-4" /> 일반펫으로 바꾸기 (Gemini2.5) {/* [수정 5] */}
+                            <Icon name="sparkles" className="w-4 h-4" /> 일반펫으로 바꾸기 (Gemini2.5)
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash-image-preview'); }}
                           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="gem" className="w-4 h-4" /> 고급펫으로 바꾸기 (나노바나나) {/* [수정 6] */}
+                            <Icon name="gem" className="w-4 h-4" /> 고급펫으로 바꾸기 (나노바나나)
                         </button>
 
                          <button 
@@ -539,7 +549,7 @@
                       onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }}
                       className="w-full max-w-[300px] mx-auto mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap flex items-center justify-center gap-2"
                     >
-                      <Icon name="trash-2" className="w-4 h-4" /> 펫 쫓아내기 {/* [수정 2] */}
+                      <Icon name="trash-2" className="w-4 h-4" /> 펫 쫓아내기
                     </button>
                 )}
 
