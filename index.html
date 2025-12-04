@@ -161,7 +161,6 @@
       const [error, setError] = React.useState('');
       const [isPetConfirmed, setIsPetConfirmed] = React.useState(false);
       
-      // [최종 프롬프트 개선] 배경, 조명, 클레이펫화, 개성 유지, 사이즈 랜덤화 목표
       const promptStyle = 'A full-body, centered, high-quality photorealistic clay render of the subject from the input image, in a cute toy style. The character must maintain the subject\'s original characteristics (human or animal features). The character must occupy between 70% and 85% of the frame. The background must be rendered as a pure, uniform white, completely devoid of any light source, shadow, or gradient. lighting is flat and even on the character, with no shadows on the background.';
       
       const fileInputRef = React.useRef(null);
@@ -247,7 +246,6 @@
       };
 
 
-      // [핵심 수정]: 모델 이름을 인자로 받도록 수정
       const generateAIImage = async (modelName) => {
         if (!selectedImage) return;
 
@@ -258,11 +256,13 @@
             const base64Data = selectedImage.split(',')[1];
             
             const response = await fetch(
+              // Vercel Function의 경로를 호출합니다. (자동으로 서버의 환경변수 키 사용)
               '/api/generate',
               {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                  // 키는 보내지 않고, 필요한 데이터만 서버로 보냅니다.
                   base64Image: base64Data,
                   prompt: promptStyle,
                   mimeType: 'image/png', 
@@ -368,10 +368,22 @@
         }, 1600); 
         setHearts([]); 
       };
+
+      // [NEW] 사진 다시 선택 함수
+      const handleSelectNewPhoto = (e) => {
+          e.stopPropagation();
+          setSelectedImage(null);
+          setGeneratedImage(null);
+          setIsPetConfirmed(false);
+          setError('');
+          setTouchCount(0);
+          setHearts([]);
+          fileInputRef.current?.click(); // 파일 선택 창 다시 띄우기
+      }
       
       const subHeaderText = isPetConfirmed 
-        ? '펫을 마구 터치하면 기분이 좋아져서 보상을 준대요!' 
-        : '사진을 등록하고 나만의 펫을 만들어보세요!';
+        ? '펫을 마구 터치해서 보상을 받아보세요!' 
+        : '사진 등록하고 나만의 펫을 만들어보세요!';
         
       
       let glowClass = 'shadow-inner-custom border-white/50';
@@ -416,7 +428,7 @@
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
-                  터치터치! 나만의 <span className="text-blue-600">펫</span> 쓰다듬고 보상받기
+                  터치터치! 나만의 <span className="text-blue-600">펫</span>쓰다듬고 보상받기
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
                   {subHeaderText} 
@@ -455,7 +467,7 @@
                           key={heart.id} 
                           className="animate-heart-pop text-red-500 text-2xl"
                           style={{ 
-                              position: 'absolute',
+                              position: 'absolute', 
                               top: `${heart.y}%`, 
                               left: `${heart.x}%`, 
                               transform: `translate(-50%, -50%) rotate(${heart.rotation}deg)`,
@@ -492,8 +504,8 @@
                   ) : (
                     <div className="flex flex-col items-center justify-center text-blue-500">
                       <Icon name="upload" className="w-10 h-10 mb-2" />
-                      <span className="text-sm font-medium">사진 넣고 펫 만들기</span>
-                      <span className="text-xs text-gray-500 mt-1">단일 사진이 결과가 더 좋아요</span>
+                      <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
+                      <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
                     </div>
                   )}
                   
@@ -504,21 +516,29 @@
                     accept="image/*"
                     className="hidden"
                   />
-
+                  
                   {/* [핵심 수정]: 버튼 두 개로 분리하여 중앙에 배치 */}
                   {selectedImage && !isPetConfirmed && !isLoading && !generatedImage && (
-                    <div className="absolute inset-0 flex flex-col justify-center items-center gap-3 p-8">
+                    <div className="absolute inset-0 flex flex-col justify-center items-center gap-2 p-8">
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash'); }}
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="sparkles" className="w-4 h-4" /> 일반 펫으로 만들기 (무료 모델)
+                            <Icon name="sparkles" className="w-4 h-4" /> 일반 펫으로 바꾸기 (Gemini 2.5)
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash-image-preview'); }}
                           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="gem" className="w-4 h-4" /> 고급 펫으로 만들기 (유료 모델)
+                            <Icon name="gem" className="w-4 h-4" /> 고급 펫으로 바꾸기 (나노바나나)
+                        </button>
+
+                        {/* [NEW] 사진 다시 선택 버튼 추가 */}
+                         <button 
+                          onClick={handleSelectNewPhoto}
+                          className="w-full mt-2 bg-gray-300 hover:bg-gray-400 text-gray-700 px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition-all active:scale-95 whitespace-nowrap"
+                        >
+                            <Icon name="rotate-ccw" className="w-4 h-4" /> 사진 다시 선택하기
                         </button>
                     </div>
                   )}
