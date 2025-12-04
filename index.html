@@ -176,7 +176,8 @@
               if (result.error) {
                   console.error("API Error:", result.error.message);
                   // 서버에서 온 에러는 깔끔하게 처리 (유출 경고 없음)
-                  setError(result.error.message || '🚨 이미지 생성 실패. 서버 상태를 확인해주세요.');
+                  // Note: gemini-2.5-flash 모델은 이미지 생성이 안되므로 이 메시지가 뜰 가능성 높음
+                  setError(result.error.message || '🚨 이미지 생성 실패. 일반 펫 모델은 이미지 생성 기능이 없습니다. 고급 펫 모델을 사용해주세요.');
                   return;
               }
               
@@ -323,8 +324,8 @@
 
         const newHeart = { 
             id: Date.now() + Math.random(), 
-            x: 20 + Math.random() * 60, 
-            y: 20 + Math.random() * 60, 
+            x: 20 + Math.random() * 60, // 20% to 80%
+            y: 20 + Math.random() * 60, // 20% to 80%
             rotation: (Math.random() - 0.5) * 40,
             delay: Math.random() * 0.1 
         };
@@ -369,18 +370,8 @@
         setHearts([]); 
       };
 
-      // [NEW] 사진 다시 선택 함수
-      const handleSelectNewPhoto = (e) => {
-          e.stopPropagation();
-          setSelectedImage(null);
-          setGeneratedImage(null);
-          setIsPetConfirmed(false);
-          setError('');
-          setTouchCount(0);
-          setHearts([]);
-          fileInputRef.current?.click(); // 파일 선택 창 다시 띄우기
-      }
-      
+      // [수정 1] 메인 텍스트 변경
+      const mainHeaderText = '터치터치! 나만의 펫 쓰다듬기'; 
       const subHeaderText = isPetConfirmed 
         ? '펫을 마구 터치해서 보상을 받아보세요!' 
         : '사진 등록하고 나만의 펫을 만들어보세요!';
@@ -409,7 +400,7 @@
                 </div>
             )}
 
-            {/* Top Bar (Fixed Position) */}
+            {/* Top Bar */}
             <div className="fixed w-full max-w-[420px] top-0 p-4 flex items-center justify-between border-b border-gray-100 bg-white z-50"> 
               <div className="flex items-center relative">
                 <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#FFE54C] mr-2">
@@ -428,7 +419,7 @@
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
-                  터치터치! 나만의 <span className="text-blue-600">펫</span>쓰다듬고 보상받기
+                  {mainHeaderText} {/* [수정 1] 메인 텍스트 변경 */}
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
                   {subHeaderText} 
@@ -504,8 +495,8 @@
                   ) : (
                     <div className="flex flex-col items-center justify-center text-blue-500">
                       <Icon name="upload" className="w-10 h-10 mb-2" />
-                      <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
-                      <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
+                      <span className="text-sm font-medium">사진 넣고 펫 만들기</span> {/* [수정 3] */}
+                      <span className="text-xs text-gray-500 mt-1">터치하고 이미지 선택</span> {/* [수정 4] */}
                     </div>
                   )}
                   
@@ -516,33 +507,31 @@
                     accept="image/*"
                     className="hidden"
                   />
-                  
-                  {/* [핵심 수정]: 버튼 두 개로 분리하여 중앙에 배치 */}
+
+                  {/* [수정 완료]: 사진이 선택되어 있고, 확정되지 않았으며, 로딩 중이 아닐 때만 버튼이 나타남 */}
                   {selectedImage && !isPetConfirmed && !isLoading && !generatedImage && (
                     <div className="absolute inset-0 flex flex-col justify-center items-center gap-2 p-8">
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash'); }}
                           className="w-full bg-blue-500 hover:bg-blue-600 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="sparkles" className="w-4 h-4" /> 일반 펫으로 바꾸기 (Gemini 2.5)
+                            <Icon name="sparkles" className="w-4 h-4" /> 일반펫으로 바꾸기 (Gemini2.5) {/* [수정 5] */}
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash-image-preview'); }}
                           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="gem" className="w-4 h-4" /> 고급 펫으로 바꾸기 (나노바나나)
+                            <Icon name="gem" className="w-4 h-4" /> 고급펫으로 바꾸기 (나노바나나) {/* [수정 6] */}
                         </button>
 
-                        {/* [NEW] 사진 다시 선택 버튼 추가 */}
                          <button 
                           onClick={handleSelectNewPhoto}
                           className="w-full mt-2 bg-gray-300 hover:bg-gray-400 text-gray-700 px-5 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="rotate-ccw" className="w-4 h-4" /> 사진 다시 선택하기
+                            <Icon name="x" className="w-4 h-4" /> 돌아가기 (취소)
                         </button>
                     </div>
                   )}
-                  {/* [수정 완료] */}
                 </div>
                 
                 {generatedImage && isPetConfirmed && (
@@ -550,7 +539,7 @@
                       onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }}
                       className="w-full max-w-[300px] mx-auto mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap flex items-center justify-center gap-2"
                     >
-                      <Icon name="trash-2" className="w-4 h-4" /> 펫 쫓아내기
+                      <Icon name="trash-2" className="w-4 h-4" /> 펫 쫓아내기 {/* [수정 2] */}
                     </button>
                 )}
 
@@ -691,7 +680,7 @@
 
             </div>
             
-            {/* Bottom Nav (Fixed Position) */}
+            {/* Bottom Nav */}
             <div className="fixed w-full max-w-[420px] bottom-0 h-16 bg-white border-t border-gray-100 flex justify-around items-center z-50"> 
               <button className="flex flex-col items-center text-gray-400 hover:text-blue-600">
                 <Icon name="search" className="w-5 h-5" />
