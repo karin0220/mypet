@@ -30,6 +30,11 @@
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
+    /* 새로운 가챠 테마 섀도우 */
+    .gacha-shadow {
+        /* 피규어가 반짝이는 느낌을 줌 */
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.5), 0 0 5px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 165, 0, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -380,8 +385,8 @@
           setHearts([]);
       }
       
-      // [수정] mainHeaderText 정의를 상단으로 이동
-      const mainHeaderText = '터치터치! 나만의 펫 쓰다듬기'; 
+      // [수정] 메인 텍스트 원복
+      const mainHeaderText = '톡톡! 나만의 펫과 함께하는 미션'; 
       const subHeaderText = isPetConfirmed 
         ? '펫을 마구 터치해서 보상을 받아보세요!' 
         : '사진 등록하고 나만의 펫을 만들어보세요!';
@@ -429,7 +434,7 @@
             
               <div className="p-4 text-center mt-4 relative">
                 <h2 className="text-xl font-bold text-[#333] mb-2">
-                  {mainHeaderText}
+                  {mainHeaderText} {/* 톡톡! 나만의 펫과 함께하는 미션 */}
                 </h2>
                 <p className="text-sm text-gray-600 mb-6">
                   {subHeaderText} 
@@ -455,10 +460,10 @@
                 )}
 
 
-                {/* Pet Interaction Area */}
+                {/* Pet Interaction Area (Gacha Capsule Window) */}
                 <div 
-                  className={`relative w-full aspect-square max-w-[300px] mx-auto rounded-full flex items-center justify-center cursor-pointer overflow-hidden p-4 border-4 transition-all duration-500 
-                  bg-white ${glowClass}`} 
+                  className={`relative w-full aspect-square max-w-[300px] mx-auto rounded-full flex items-center justify-center cursor-pointer overflow-hidden p-4 border-8 border-gray-300 transition-all duration-500 
+                  bg-gray-100 ${glowClass}`} 
                   onClick={generatedImage && isPetConfirmed ? handlePetTouch : handlePetAreaClick}
                   style={{ WebkitTapHighlightColor: 'transparent', zIndex: 10 }} 
                 >
@@ -491,8 +496,9 @@
                       <img 
                         ref={petImgRef} 
                         src={generatedImage} 
-                        alt="My Pet" 
-                        className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''}`} 
+                        alt="My Pet Gacha Drop" 
+                        // [디자인 유지]: 피규어/가챠샵 느낌의 섀도우 적용
+                        className={`w-full h-full object-contain ${generatedImage ? 'animate-fade-in' : ''} shadow-xl gacha-shadow rounded-xl`} 
                         style={{zIndex: 20}} 
                       />
                     </>
@@ -500,13 +506,14 @@
                       <img 
                         src={selectedImage} 
                         alt="Selected Preview" 
-                        className="w-full h-full object-contain animate-fade-in opacity-50"
+                        className="w-full h-full object-contain animate-fade-in opacity-50 border-4 border-dashed border-gray-400 rounded-lg"
                       />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-blue-500">
-                      <Icon name="upload" className="w-10 h-10 mb-2" />
-                      <span className="text-sm font-medium">사진 넣고 펫 만들기</span>
-                      <span className="text-xs text-gray-500 mt-1">터치하고 이미지 선택</span>
+                      <Icon name="cloud-upload" className="w-10 h-10 mb-2" />
+                      <span className="text-sm font-medium">내 사진으로 펫 만들기</span>
+                      <span className="text-xs text-gray-500 mt-1">터치하여 이미지 선택</span>
+                      <span className="text-xs text-gray-500 mt-2 p-1 bg-white rounded-full border border-gray-200">뽑기할 사진을 준비하세요!</span>
                     </div>
                   )}
                   
@@ -518,20 +525,20 @@
                     className="hidden"
                   />
 
-                  {/* [수정 완료]: 사진이 선택되어 있고, 확정되지 않았으며, 로딩 중이 아닐 때만 버튼이 나타남 */}
+                  {/* [버튼 유지]: 모델 비교 버튼은 그대로 둠 */}
                   {selectedImage && !isPetConfirmed && !isLoading && !generatedImage && (
                     <div className="absolute inset-0 flex flex-col justify-center items-center gap-2 p-8">
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash'); }}
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
+                          className="w-full bg-green-500 hover:bg-green-600 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="sparkles" className="w-4 h-4" /> 일반펫으로 바꾸기 (Gemini2.5)
+                            <Icon name="coins" className="w-4 h-4" /> 일반 캡슐 뽑기 (Gemini2.5)
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); generateAIImage('gemini-2.5-flash-image-preview'); }}
-                          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 whitespace-nowrap"
+                          className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-5 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-xl transition-all active:scale-95 whitespace-nowrap"
                         >
-                            <Icon name="gem" className="w-4 h-4" /> 고급펫으로 바꾸기 (나노바나나)
+                            <Icon name="sparkles" className="w-4 h-4" /> 프리미엄 캡슐 뽑기 (나노바나나)
                         </button>
 
                          <button 
@@ -549,7 +556,7 @@
                       onClick={(e) => { e.stopPropagation(); setSelectedImage(null); setGeneratedImage(null); setError(''); setTouchCount(0); setPetMessage('안녕? 나랑 놀자!'); setIsPetConfirmed(false); setHearts([]); }}
                       className="w-full max-w-[300px] mx-auto mt-6 bg-red-500 hover:bg-red-600 text-white px-5 py-3 rounded-xl font-bold transition-all active:scale-95 shadow-md whitespace-nowrap flex items-center justify-center gap-2"
                     >
-                      <Icon name="trash-2" className="w-4 h-4" /> 펫 쫓아내기
+                      <Icon name="trash-2" className="w-4 h-4" /> 펫 버리기
                     </button>
                 )}
 
